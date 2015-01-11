@@ -1,0 +1,64 @@
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    
+    var socket = io.connect('http://localhost');
+    
+    /* GLOBAL VARIABLES */
+    
+    var current_match = 0,
+        //current_team = null,
+        //current_name = null,
+        name_input = document.getElementById('input-name'),
+        team_id_select = document.getElementById('robot-id');
+    
+    /* UPDATE HANDLERS */
+    
+    /* Update or populate match number. */
+    
+    function update_match_number(num) {
+        for (var x = 0; x < document.getElementsByClassName('match-number').length; x++) {
+            current_match = num;
+            document.getElementsByClassName('match-number')[0].textContent = num.toString();
+        }
+    }
+    
+    /* Update or populate team list. */
+    
+    function add_teams(obj) {
+        if (team_id_select.children.length > 1) {
+            for (var x = 0; x < team_id_select.children.length; x++) {
+                team_id_select.children[x].textContent = obj[x];
+            }
+        } else {
+            for (x in obj) {
+                var new_option = document.createElement('option');
+                new_option.value = x;
+                new_option.textContent = obj[x];
+                team_id_select.appendChild(new_option);
+            }
+        }
+    }
+    
+    /* On team selection change */
+    
+    team_id_select.addEventListener('change', function(e) {
+        console.log(team_id_select.value);
+        //current_team = team_id_select.value;
+        if (name_input.value.length < 1) {
+            alert("Please input a name.");
+        } else {
+            socket.emit('new team', {'team':team_id_select.value, 'name':name_input.value})
+        }
+                                     
+    });
+    
+    socket.on('new teams', function (data) {
+        console.log(data);
+        add_teams(data);
+    });
+    socket.on('new match', function(data) {
+        update_match_number(data);
+    });
+    socket.emit('get match');
+    socket.emit('get teams');
+</script>
