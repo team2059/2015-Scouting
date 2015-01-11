@@ -25,9 +25,13 @@
     /* Update or populate team list. */
     
     function add_teams(obj) {
-        if (team_id_select.children.length > 1) {
-            for (var x = 0; x < team_id_select.children.length; x++) {
-                team_id_select.children[x].textContent = obj[x];
+        if (team_id_select.options.length > 1) {
+            var team_list = [];
+            for (i in obj){
+                team_list.push(obj[i]);
+            }
+            for (var x = 0; x < team_id_select.options.length - 1; x++) {
+                team_id_select.options[x + 1].text = team_list[x];
             }
         } else {
             for (x in obj) {
@@ -53,7 +57,6 @@
     });
     
     socket.on('new teams', function (data) {
-        console.log(data);
         add_teams(data);
     });
     socket.on('new match', function(data) {

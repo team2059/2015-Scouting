@@ -25,10 +25,19 @@ io.on('connection', function (socket) {
             socket.emit('new teams', row );
         });
     }
+    
     /* SEND */
+    
+    function next_round(){
+        current_match += 1;
+        socket.emit('new match', current_match);
+        get_teams(current_event,current_match);
+    }
+    
     socket.on('get teams', function (data) {
          get_teams(current_event,current_match);
     });
+    
     socket.on('get match', function (data) {
          socket.emit('new match', current_match);
     });
