@@ -1,0 +1,14 @@
+<script>
+    var buttons = document.getElementsByClassName('increase');
+    for (var x = 0; x < buttons.length; x++) {
+        buttons[x].addEventListener('click', function(e) {
+            e.target.parentElement.getElementsByClassName('number')[0].value = parseInt(e.target.parentElement.getElementsByClassName('number')[0].value) + 1;
+        });
+    }
+    buttons = document.getElementsByClassName('decrease');
+    for (var x = 0; x < buttons.length; x++) {
+        buttons[x].addEventListener('click', function(e) {
+            e.target.parentElement.getElementsByClassName('number')[0].value = parseInt(e.target.parentElement.getElementsByClassName('number')[0].value) - 1;
+        });
+    }
+</script>

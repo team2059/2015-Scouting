@@ -2,13 +2,17 @@
 <head>
     <meta charset="UTF-8" />
     <title>The Hitchhikers - Scouting</title>
+    {{> style}}
 </head>
 <body>
-    {{> header}}
-    <section>
-        <header>Match #<span class="match-number">--</span></header>
-        {{> match_input}}
-    </section>
+    <div class="wrapper">
+        {{> header}}
+        <div class="content">
+            <article>
+                {{> match_input}}
+            </article>
+        </div>
+    </div>
 </body>
 {{> scripts}}
 </html>
