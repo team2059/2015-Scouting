@@ -148,3 +148,5 @@ app.get('/', function (req, res) { // Index - used for client input
 app.get('/admin', function (req, res) { // Admin - used to edit entries and view current clients. 
     res.render('admin');
 });
+
+module.exports = app;
