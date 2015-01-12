@@ -48,6 +48,10 @@ io.on('connection', function (socket) {
         console.log(data);
     });
     
+    socket.on('update value', function(data) { // Command to update new value
+        console.log(data);
+    });
+    
 });
 
 server.listen(80);
