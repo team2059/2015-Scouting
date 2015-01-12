@@ -8,11 +8,20 @@ var app = require('express')(), // Express framework for web applications http:/
 
 /* GLOBAL VARIABLES */
 var current_match = 1, // Defaults to 1
-    current_event = "2012nc"; // TODO: Create config.json file for setting up defaults
+    current_event = "2012nc", // TODO: Create config.json file for setting up defaults
+    current_teams = {},
+    current = {
+        "r1": { "open": true, "user": null},
+        "r2": { "open": true, "user": null},
+        "r3": { "open": true, "user": null},
+        "b1": { "open": true, "user": null},
+        "b2": { "open": true, "user": null},
+        "b3": { "open": true, "user": null},
+    };
 
 /* INITIALIZE DATABASE ON STARTUP */
 db.run("CREATE table if not exists matches (event CHAR(6), round SMALLINT(3), r1 SMALLINT(4), r2 SMALLINT(4), r3 SMALLINT(4), b1 SMALLINT(4), b2 SMALLINT(4), b3 SMALLINT(4), rscore SMALLINT(3), bscore SMALLINT(3))"); // Create matches table
-db.run("CREATE table if not exists match_scouting (event CHAR(6), round SMALLINT(3), team SMALLINT(4), scouter CHAR, tt1 SMALLINT(2), tt2 SMALLINT(2), tt3 SMALLINT(2), tt4 SMALLINT(2), tt5 SMALLINT(2), tt6 SMALLINT(2), tb1 SMALLINT(2), tb2 SMALLINT(2), tb3 SMALLINT(2), tb4 SMALLINT(2), tb5 SMALLINT(2), tb6 SMALLINT(2))"); // Create match_scouting table
+db.run("CREATE table if not exists match_scouting (event CHAR(6) DEFAULT NULL, round SMALLINT(3) DEFAULT NULL, team SMALLINT(4) DEFAULT NULL, scouter CHAR, tt1 SMALLINT(2) DEFAULT 0, tt2 SMALLINT(2) DEFAULT 0, tt3 SMALLINT(2) DEFAULT 0, tt4 SMALLINT(2) DEFAULT 0, tt5 SMALLINT(2) DEFAULT 0, tt6 SMALLINT(2) DEFAULT 0, tb1 SMALLINT(2) DEFAULT 0, tb2 SMALLINT(2) DEFAULT 0, tb3 SMALLINT(2) DEFAULT 0, tb4 SMALLINT(2) DEFAULT 0, tb5 SMALLINT(2) DEFAULT 0, tb6 SMALLINT(2) DEFAULT 0)"); // Create match_scouting table
 
 /* SOCKETS */
 
@@ -22,6 +31,7 @@ io.on('connection', function (socket) {
 
     function get_teams(event,match){
         db.get("SELECT r1,r2,r3,b1,b2,b3 FROM matches WHERE event = $event AND round = $round", {$event: event, $round: match}, function(err,row){
+            current_teams = row;
             socket.emit('new teams', row );
         });
     }
@@ -46,10 +56,15 @@ io.on('connection', function (socket) {
 
     socket.on('new team', function(data) { // Recieved when a new client is connected
         console.log(data);
+        current[data["team"]]["open"] = false;
+        current[data["team"]]["user"] = data["name"];
+        console.log(current[data["team"]]);
     });
     
     socket.on('update value', function(data) { // Command to update new value
         console.log(data);
+        var update_team = current_teams[data["position"]];
+        db.run("UPDATE match_scouting SET "+data["key"]+"="+parseInt(data["value"])+" WHERE event='"+current_event+"' AND round="+current_match+" AND team="+update_team);
     });
     
 });
@@ -72,6 +87,7 @@ function get_match_data(event) { // Pull complete schedule from an event
                 for (z in match_data[x]["alliances"]) {
                     for (var y = 0; y < match_data[x]["alliances"][z]["teams"].length; y++) {
                         teams_list.push(match_data[x]["alliances"][z]["teams"][y].replace(/\D/g,''));
+                        db.run("INSERT INTO match_scouting (event,round,team) VALUES (?,?,?)",[event,match_data[x]["match_number"],match_data[x]["alliances"][z]["teams"][y].replace(/\D/g,'')]);
                     }
                 }
                 teams_list.unshift(match_data[x]["match_number"]);
