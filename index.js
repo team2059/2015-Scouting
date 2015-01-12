@@ -25,14 +25,28 @@ db.run("CREATE table if not exists match_scouting (event CHAR(6) DEFAULT NULL, r
 
 /* SOCKETS */
 
+var allClients = [],
+    client_post = [];
 io.on('connection', function (socket) {
+    
+    /* GLOBALS */
+    
+    allClients.push(socket);
 
     /* SQL QUERIES */
 
-    function get_teams(event,match){
+    function get_teams(event,match,toAll){
         db.get("SELECT r1,r2,r3,b1,b2,b3 FROM matches WHERE event = $event AND round = $round", {$event: event, $round: match}, function(err,row){
             current_teams = row;
-            socket.emit('new teams', row );
+            var is_open = [];
+            for (x in current) {
+                is_open.push(current[x]["open"]);
+            }
+            if (toAll) {
+                socket.broadcast.emit('new teams', {"team":row, "open":is_open});
+            } else {
+                socket.emit('new teams', {"team":row, "open":is_open});
+            }
         });
     }
 
@@ -43,9 +57,18 @@ io.on('connection', function (socket) {
         socket.emit('new match', current_match);
         get_teams(current_event,current_match);
     }
+    
+    function new_teams(data) { // Recieved when a new client is connected
+        console.log(data);
+        if (current[data["team"]]) {
+            current[data["team"]]["open"] = data["open"];
+            current[data["team"]]["user"] = data["name"];
+        }
+        get_teams(current_event,current_match,true);
+    }
 
     socket.on('get teams', function (data) { // Send back list of current teams in the current match
-        get_teams(current_event,current_match);
+        get_teams(current_event,current_match,false);
     });
 
     socket.on('get match', function (data) { // Send back the current match number
@@ -54,19 +77,34 @@ io.on('connection', function (socket) {
 
     /* RECIEVE */
 
-    socket.on('new team', function(data) { // Recieved when a new client is connected
-        console.log(data);
-        current[data["team"]]["open"] = false;
-        current[data["team"]]["user"] = data["name"];
-        console.log(current[data["team"]]);
+    socket.on('new team', function (data) {
+        var i = allClients.indexOf(socket);
+        client_post[i] = data["team"]; // Update client position
+        new_teams(data)
     });
-    
+
     socket.on('update value', function(data) { // Command to update new value
         console.log(data);
         var update_team = current_teams[data["position"]];
-        db.run("UPDATE match_scouting SET "+data["key"]+"="+parseInt(data["value"])+" WHERE event='"+current_event+"' AND round="+current_match+" AND team="+update_team);
+        if (update_team) {
+            try {
+                console.log(update_team);
+                db.run("UPDATE match_scouting SET "+data["key"]+"="+parseInt(data["value"])+" WHERE event='"+current_event+"' AND round="+current_match+" AND team="+update_team);
+            } catch(e) {
+                socket.emit('new error', {"message": "Error."})
+            }
+        } else {
+            socket.emit('new error', {"message": "Please indicate which team you are scouting."})
+        }
     });
     
+    socket.on('disconnect', function(){
+        var i = allClients.indexOf(socket);
+        delete allClients[i];
+        new_teams({'team':client_post[i], 'name':null, 'open':true});
+        delete client_post[i];
+    });
+
 });
 
 server.listen(80);
