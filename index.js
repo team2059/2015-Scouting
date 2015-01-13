@@ -63,6 +63,25 @@ exports.database = function(database) {
         })
     }
 
+    db.get("SELECT COUNT(*) as num FROM matches", function(err,row) {
+        if (!err) {
+            if (row["num"] < 5) {
+                prompt.start();
+                prompt.get( {
+                    properties: {
+                        name: {
+                            message: "Add new event"
+                        }
+                    }
+                }, function(err, result) {
+                    console.log("Fetching informtaion from "+result.name);
+                    get_match_data(result.name);
+                    console.log("Database population complete");
+                });
+            }
+
+        }
+    })
 }
 
 exports.extendSockets = function(socket) {
