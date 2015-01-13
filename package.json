@@ -1,6 +1,6 @@
 {
   "name": "2015-Scouting",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Scouting system developed for the 2015 FIRST Robotics Competition game, RECYCLE RUSH.",
   "main": "index.js",
   "scripts": {
@@ -30,7 +30,6 @@
   },
   "homepage": "https://github.com/team2059/2015-Scouting",
   "dependencies": {
-    "express": "^4.10.7",
     "request": "^2.51.0",
     "sqlite3": "^3.0.4"
   },

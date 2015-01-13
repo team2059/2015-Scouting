@@ -1,6 +1,8 @@
 /* DEPENDENCIES */
 var sqlite3 = require('sqlite3').verbose(), // SQLite3 database https://github.com/mapbox/node-sqlite3
     db = new sqlite3.Database('2015_scouting_data.db'), // Create or connect to the database
+    fs = require('fs'),
+    path = require('path'),
 
     /* GLOBAL VARIABLES */
     current_match = 1, // Defaults to 1
@@ -19,10 +21,16 @@ var sqlite3 = require('sqlite3').verbose(), // SQLite3 database https://github.c
     allClients = [],
     client_post = [];
 
-
 /* INITIALIZE DATABASE ON STARTUP */
-db.run("CREATE table if not exists matches (event CHAR(6), round SMALLINT(3), r1 SMALLINT(4), r2 SMALLINT(4), r3 SMALLINT(4), b1 SMALLINT(4), b2 SMALLINT(4), b3 SMALLINT(4), rscore SMALLINT(3), bscore SMALLINT(3))"); // Create matches table
-db.run("CREATE table if not exists match_scouting (event CHAR(6) DEFAULT NULL, round SMALLINT(3) DEFAULT NULL, team SMALLINT(4) DEFAULT NULL, scouter CHAR, tt1 SMALLINT(2) DEFAULT 0, tt2 SMALLINT(2) DEFAULT 0, tt3 SMALLINT(2) DEFAULT 0, tt4 SMALLINT(2) DEFAULT 0, tt5 SMALLINT(2) DEFAULT 0, tt6 SMALLINT(2) DEFAULT 0, tb1 SMALLINT(2) DEFAULT 0, tb2 SMALLINT(2) DEFAULT 0, tb3 SMALLINT(2) DEFAULT 0, tb4 SMALLINT(2) DEFAULT 0, tb5 SMALLINT(2) DEFAULT 0, tb6 SMALLINT(2) DEFAULT 0)"); // Create match_scouting table
+fs.readFile( path.join(__dirname, 'config.json'), {encoding: 'utf-8'}, function(err,data){
+    if (!err){
+        data = JSON.parse(data);
+        for (var x = 0; x < data["database"]["tables"].length; x++) {
+            var new_query = "CREATE table IF NOT EXISTS "+data["database"]["tables"][x]["name"]+" ("+data["database"]["tables"][x]["columns"].join(',')+")";
+            db.run(new_query);
+        }
+    }
+});
 
 
 function Scout(socket) {
@@ -35,7 +43,6 @@ function Scout(socket) {
 
     function get_teams(event,match,toAll){
         db.get("SELECT r1,r2,r3,b1,b2,b3 FROM matches WHERE event = $event AND round = $round", {$event: event, $round: match}, function(err,row){
-            console.log(row);
             if (!err) {
                 current_teams = row;
                 var is_open = [];
@@ -89,7 +96,6 @@ function Scout(socket) {
     }
 
     function new_teams(data) { // Recieved when a new client is connected
-        console.log(data);
         if (current[data["team"]]) {
             current[data["team"]]["open"] = data["open"];
             current[data["team"]]["user"] = data["name"];
@@ -114,11 +120,9 @@ function Scout(socket) {
     });
 
     socket.on('update value', function(data) { // Command to update new value
-        console.log(data);
         var update_team = current_teams[data["position"]];
         if (update_team) {
             try {
-                console.log(update_team);
                 db.run("UPDATE match_scouting SET "+data["key"]+"="+parseInt(data["value"])+" WHERE event='"+current_event+"' AND round="+current_match+" AND team="+update_team);
             } catch(e) {
                 socket.emit('new error', {"message": "Error."})

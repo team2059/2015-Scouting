@@ -3,7 +3,7 @@
         [
             { "name":"matches",
              "columns": [
-                 "event CHAR(6)", "round SMALLINT(3)", "r1 SMALLINT(4)", "r2 SMALLINT(4)", "r3 SMALLINT(4)", "b1 SMALLINT(4)", "b2 SMALLINT(4)", "b3 SMALLINT(4)", "rscore SMALLINT(3)", "bscore SMALLINT(3))"
+                 "event CHAR(6)", "round SMALLINT(3)", "r1 SMALLINT(4)", "r2 SMALLINT(4)", "r3 SMALLINT(4)", "b1 SMALLINT(4)", "b2 SMALLINT(4)", "b3 SMALLINT(4)", "rscore SMALLINT(3)", "bscore SMALLINT(3)"
              ]
             },
             { "name":"match_scouting",
