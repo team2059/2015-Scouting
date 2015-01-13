@@ -1,8 +1,5 @@
 /* DEPENDENCIES */
 var app = require('express')(), // Express framework for web applications http://expressjs.com/
-    hbs = require('hbs'), // Express wrapper for Handlebars https://github.com/donpark/hbs
-    server = require('http').Server(app), // Start server with Express and http
-    io = require('socket.io')(server), // Socket.io real-time engine http://socket.io/
     sqlite3 = require('sqlite3').verbose(), // SQLite3 database https://github.com/mapbox/node-sqlite3
     db = new sqlite3.Database('2015_scouting_data.db'); // Create or connect to the database
 
@@ -27,87 +24,89 @@ db.run("CREATE table if not exists match_scouting (event CHAR(6) DEFAULT NULL, r
 
 var allClients = [],
     client_post = [];
-io.on('connection', function (socket) {
-    
-    /* GLOBALS */
-    
-    allClients.push(socket);
 
-    /* SQL QUERIES */
+exports.connect = function(server) {
+    io = require('socket.io')(server), // Socket.io real-time engine http://socket.io/
+        io.on('connection', function (socket) {
 
-    function get_teams(event,match,toAll){
-        db.get("SELECT r1,r2,r3,b1,b2,b3 FROM matches WHERE event = $event AND round = $round", {$event: event, $round: match}, function(err,row){
-            current_teams = row;
-            var is_open = [];
-            for (x in current) {
-                is_open.push(current[x]["open"]);
+        /* GLOBALS */
+
+        allClients.push(socket);
+
+        /* SQL QUERIES */
+
+        function get_teams(event,match,toAll){
+            db.get("SELECT r1,r2,r3,b1,b2,b3 FROM matches WHERE event = $event AND round = $round", {$event: event, $round: match}, function(err,row){
+                current_teams = row;
+                var is_open = [];
+                for (x in current) {
+                    is_open.push(current[x]["open"]);
+                }
+                if (toAll) {
+                    socket.broadcast.emit('new teams', {"team":row, "open":is_open});
+                } else {
+                    socket.emit('new teams', {"team":row, "open":is_open});
+                }
+            });
+        }
+
+        /* SEND */
+
+        function next_round() { // Update all clients to the next round
+            current_match += 1;
+            socket.emit('new match', current_match);
+            get_teams(current_event,current_match);
+        }
+
+        function new_teams(data) { // Recieved when a new client is connected
+            console.log(data);
+            if (current[data["team"]]) {
+                current[data["team"]]["open"] = data["open"];
+                current[data["team"]]["user"] = data["name"];
             }
-            if (toAll) {
-                socket.broadcast.emit('new teams', {"team":row, "open":is_open});
+            get_teams(current_event,current_match,true);
+        }
+
+        socket.on('get teams', function (data) { // Send back list of current teams in the current match
+            get_teams(current_event,current_match,false);
+        });
+
+        socket.on('get match', function (data) { // Send back the current match number
+            socket.emit('new match', current_match);
+        });
+
+        /* RECIEVE */
+
+        socket.on('new team', function (data) {
+            var i = allClients.indexOf(socket);
+            client_post[i] = data["team"]; // Update client position
+            new_teams(data)
+        });
+
+        socket.on('update value', function(data) { // Command to update new value
+            console.log(data);
+            var update_team = current_teams[data["position"]];
+            if (update_team) {
+                try {
+                    console.log(update_team);
+                    db.run("UPDATE match_scouting SET "+data["key"]+"="+parseInt(data["value"])+" WHERE event='"+current_event+"' AND round="+current_match+" AND team="+update_team);
+                } catch(e) {
+                    socket.emit('new error', {"message": "Error."})
+                }
             } else {
-                socket.emit('new teams', {"team":row, "open":is_open});
+                socket.emit('new error', {"message": "Please indicate which team you are scouting."})
             }
         });
-    }
 
-    /* SEND */
+        socket.on('disconnect', function(){
+            var i = allClients.indexOf(socket);
+            delete allClients[i];
+            new_teams({'team':client_post[i], 'name':null, 'open':true});
+            delete client_post[i];
+        });
 
-    function next_round() { // Update all clients to the next round
-        current_match += 1;
-        socket.emit('new match', current_match);
-        get_teams(current_event,current_match);
-    }
-    
-    function new_teams(data) { // Recieved when a new client is connected
-        console.log(data);
-        if (current[data["team"]]) {
-            current[data["team"]]["open"] = data["open"];
-            current[data["team"]]["user"] = data["name"];
-        }
-        get_teams(current_event,current_match,true);
-    }
-
-    socket.on('get teams', function (data) { // Send back list of current teams in the current match
-        get_teams(current_event,current_match,false);
     });
-
-    socket.on('get match', function (data) { // Send back the current match number
-        socket.emit('new match', current_match);
-    });
-
-    /* RECIEVE */
-
-    socket.on('new team', function (data) {
-        var i = allClients.indexOf(socket);
-        client_post[i] = data["team"]; // Update client position
-        new_teams(data)
-    });
-
-    socket.on('update value', function(data) { // Command to update new value
-        console.log(data);
-        var update_team = current_teams[data["position"]];
-        if (update_team) {
-            try {
-                console.log(update_team);
-                db.run("UPDATE match_scouting SET "+data["key"]+"="+parseInt(data["value"])+" WHERE event='"+current_event+"' AND round="+current_match+" AND team="+update_team);
-            } catch(e) {
-                socket.emit('new error', {"message": "Error."})
-            }
-        } else {
-            socket.emit('new error', {"message": "Please indicate which team you are scouting."})
-        }
-    });
-    
-    socket.on('disconnect', function(){
-        var i = allClients.indexOf(socket);
-        delete allClients[i];
-        new_teams({'team':client_post[i], 'name':null, 'open':true});
-        delete client_post[i];
-    });
-
-});
-
-server.listen(80);
+}
 
 /* USE THE BLUE ALLIANCE API TO POPULATE MATCH DATABASE */
 function get_match_data(event) { // Pull complete schedule from an event
@@ -136,10 +135,6 @@ function get_match_data(event) { // Pull complete schedule from an event
     })
 }
 
-
-
-app.set('view engine', 'hbs'); // Connect handlebars to Express
-hbs.registerPartials(__dirname+'/views/partials'); // Designate partials folder for handlebars
 
 app.get('/', function (req, res) { // Index - used for client input
     res.render('index');

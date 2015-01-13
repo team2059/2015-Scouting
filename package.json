@@ -1,6 +1,6 @@
 {
   "name": "2015-Scouting",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Scouting system developed for the 2015 FIRST Robotics Competition game, RECYCLE RUSH.",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,9 @@
     "FRC",
     "Scouting"
   ],
-  "author": "Team 2059",
+  "author": {
+    "name": "Team 2059"
+  },
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/team2059/2015-Scouting/issues"
@@ -29,9 +31,14 @@
   "homepage": "https://github.com/team2059/2015-Scouting",
   "dependencies": {
     "express": "^4.10.7",
-    "hbs": "^2.8.0",
     "request": "^2.51.0",
     "socket.io": "^1.2.1",
     "sqlite3": "^3.0.4"
-  }
+  },
+  "readme": "# 2015-Scouting\r\nScouting system developed for the 2015 FIRST Robotics Competition game, RECYCLE RUSH.\r\n",
+  "readmeFilename": "README.md",
+  "_id": "2015-Scouting@0.0.0",
+  "_shasum": "d02429b8f34f4d801bdfff66a1fd619c66bce788",
+  "_from": "apps\\2015-Scouting",
+  "_resolved": "file:apps\\2015-Scouting"
 }
