@@ -1,6 +1,7 @@
 /* DEPENDENCIES */
 var fs = require('fs'),
     path = require('path'),
+    prompt = require('prompt');
 
     /* GLOBAL VARIABLES */
     current_match = 1, // Defaults to 1

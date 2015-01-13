@@ -30,6 +30,7 @@
   },
   "homepage": "https://github.com/team2059/2015-Scouting",
   "dependencies": {
+    "prompt": "^0.2.14",
     "request": "^2.51.0",
     "sqlite3": "^3.0.4"
   },
