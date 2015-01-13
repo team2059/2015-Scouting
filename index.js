@@ -1,7 +1,5 @@
 /* DEPENDENCIES */
-var sqlite3 = require('sqlite3').verbose(), // SQLite3 database https://github.com/mapbox/node-sqlite3
-    db = new sqlite3.Database('2015_scouting_data.db'), // Create or connect to the database
-    fs = require('fs'),
+var fs = require('fs'),
     path = require('path'),
 
     /* GLOBAL VARIABLES */
@@ -19,46 +17,23 @@ var sqlite3 = require('sqlite3').verbose(), // SQLite3 database https://github.c
     /* SOCKETS */
 
     allClients = [],
-    client_post = [];
+    client_post = [],
+    db = undefined,
+    exports  = module.exports = {};
 
-/* INITIALIZE DATABASE ON STARTUP */
-fs.readFile( path.join(__dirname, 'config.json'), {encoding: 'utf-8'}, function(err,data){
-    if (!err){
-        data = JSON.parse(data);
-        for (var x = 0; x < data["database"]["tables"].length; x++) {
-            var new_query = "CREATE table IF NOT EXISTS "+data["database"]["tables"][x]["name"]+" ("+data["database"]["tables"][x]["columns"].join(',')+")";
-            db.run(new_query);
-        }
-    }
-});
+exports.database = function(database) {
+    db = database;
 
-
-function Scout(socket) {
-
-    /* GLOBALS */
-
-    allClients.push(socket);
-
-    /* SQL QUERIES */
-
-    function get_teams(event,match,toAll){
-        db.get("SELECT r1,r2,r3,b1,b2,b3 FROM matches WHERE event = $event AND round = $round", {$event: event, $round: match}, function(err,row){
-            if (!err) {
-                current_teams = row;
-                var is_open = [];
-                for (x in current) {
-                    is_open.push(current[x]["open"]);
-                }
-                if (toAll) {
-                    socket.broadcast.emit('new teams', {"team":row, "open":is_open});
-                } else {
-                    socket.emit('new teams', {"team":row, "open":is_open});
-                }
-            } else {
-                console.log("ERROR: "+err);
+    /* INITIALIZE DATABASE ON STARTUP */
+    fs.readFile( path.join(__dirname, 'config.json'), {encoding: 'utf-8'}, function(err,data){
+        if (!err){
+            data = JSON.parse(data);
+            for (var x = 0; x < data["database"]["tables"].length; x++) {
+                var new_query = "CREATE table IF NOT EXISTS "+data["database"]["tables"][x]["name"]+" ("+data["database"]["tables"][x]["columns"].join(',')+")";
+                db.run(new_query);
             }
-        });
-    }
+        }
+    });
 
     /* USE THE BLUE ALLIANCE API TO POPULATE MATCH DATABASE */
     function get_match_data(event) { // Pull complete schedule from an event
@@ -86,7 +61,36 @@ function Scout(socket) {
             }
         })
     }
-    
+
+}
+
+exports.extendSockets = function(socket) {
+
+    /* GLOBALS */
+
+    allClients.push(socket);
+
+    /* SQL QUERIES */
+
+    function get_teams(event,match,toAll){
+        db.get("SELECT r1,r2,r3,b1,b2,b3 FROM matches WHERE event = $event AND round = $round", {$event: event, $round: match}, function(err,row){
+            if (!err) {
+                current_teams = row;
+                var is_open = [];
+                for (x in current) {
+                    is_open.push(current[x]["open"]);
+                }
+                if (toAll) {
+                    socket.broadcast.emit('new teams', {"team":row, "open":is_open});
+                } else {
+                    socket.emit('new teams', {"team":row, "open":is_open});
+                }
+            } else {
+                console.log("ERROR: "+err);
+            }
+        });
+    }
+
     /* SEND */
 
     function next_round() { // Update all clients to the next round
@@ -101,7 +105,7 @@ function Scout(socket) {
             current[data["team"]]["user"] = data["name"];
         }
         get_teams(current_event,current_match,true);
-    }
+    } 
 
     socket.on('get teams', function (data) { // Send back list of current teams in the current match
         get_teams(current_event,current_match,false);
@@ -139,5 +143,3 @@ function Scout(socket) {
         delete client_post[i];
     });
 }
-
-module.exports = Scout;
