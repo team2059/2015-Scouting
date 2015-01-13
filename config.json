@@ -12,5 +12,8 @@
              ]
             }
         ]
-    }
+    },
+    "name" : "2015-Scouting",
+    "path" : "/", 
+    "type": ["sockets"]
 }
