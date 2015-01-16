@@ -23,8 +23,8 @@ var fs = require('fs'),
     exports  = module.exports = {};
 
 exports.database = function(database) {
-    console.log("DATABSE");
     db = database;
+    console.log("Starting 2015-Scouiting database");
 
     /* INITIALIZE ON STARTUP */
     fs.readFile( path.join(__dirname, 'config.json'), {encoding: 'utf-8'}, function(err,data){
@@ -65,6 +65,7 @@ exports.database = function(database) {
     db.get("SELECT COUNT(*) as num FROM matches", function(err,row) {
         if (!err) {
             if (row["num"] < 5) {
+                console.log("No match data found.")
                 prompt.start();
                 prompt.get( {
                     properties: {
@@ -79,6 +80,8 @@ exports.database = function(database) {
                 });
             }
 
+        } else {
+            console.log(err)
         }
     })
 }
