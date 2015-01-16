@@ -23,16 +23,14 @@ var fs = require('fs'),
     exports  = module.exports = {};
 
 exports.database = function(database) {
+    console.log("DATABSE");
     db = database;
 
-    /* INITIALIZE DATABASE ON STARTUP */
+    /* INITIALIZE ON STARTUP */
     fs.readFile( path.join(__dirname, 'config.json'), {encoding: 'utf-8'}, function(err,data){
         if (!err){
             data = JSON.parse(data);
-            for (var x = 0; x < data["database"]["tables"].length; x++) {
-                var new_query = "CREATE table IF NOT EXISTS "+data["database"]["tables"][x]["name"]+" ("+data["database"]["tables"][x]["columns"].join(',')+")";
-                db.run(new_query);
-            }
+            current_event = data["current_event"];
         }
     });
 
@@ -61,6 +59,7 @@ exports.database = function(database) {
                 }
             }
         })
+        current_event = event;
     }
 
     db.get("SELECT COUNT(*) as num FROM matches", function(err,row) {
