@@ -31,7 +31,8 @@
   "homepage": "https://github.com/team2059/2015-Scouting",
   "dependencies": {
     "prompt": "^0.2.14",
-    "request": "^2.51.0"
+    "request": "^2.51.0",
+    "tba": "0.0.1"
   },
   "readme": "# 2015-Scouting\r\nScouting system developed for the 2015 FIRST Robotics Competition game, RECYCLE RUSH.\r\n",
   "readmeFilename": "README.md",

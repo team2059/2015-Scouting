@@ -1,8 +1,8 @@
-function connect_sockets() {
+(function connect_sockets() {
 
     function connect(){
 
-        var socket = io.connect(location.origin);
+        var socket = io.connect("/scout");
 
         /* GLOBAL VARIABLES */
 
@@ -69,6 +69,10 @@ function connect_sockets() {
         });
         team_id_select.setAttribute("previousValue",null);
 
+        socket.on("connect", function(data){
+            console.log("Connected!");
+        });
+
         socket.on('new teams', function (data) {
             console.log(data);
             add_teams(data);
@@ -103,6 +107,4 @@ function connect_sockets() {
     socket_script.src = "/socket.io/socket.io.js";
     document.body.appendChild(socket_script);
     socket_script.onload = connect;
-}
-appendToFunction('on_reload', connect_sockets,"Sockets");
-console.log("TESTING THE OTHER SCRIPT");
+})();
