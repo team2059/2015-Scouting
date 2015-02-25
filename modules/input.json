@@ -1,0 +1,21 @@
+[
+  {
+    "type": "html",
+    "class": "module half",
+    "title": "Match #<span id=\"match-number\">--</span>",
+    "content": "@app/modules/content/setup.html",
+    "ord": 1
+  },{
+  "type": "html",
+  "class": "module half name-required",
+  "title": "Drag and Drop",
+  "content": "@app/modules/content/totes.html",
+  "ord": 2
+}, {
+    "type": "script",
+    "class": "module",
+    "title": "Scouting Input Script",
+    "content": "@app/scripts.js",
+    "ord": 3
+  }
+]

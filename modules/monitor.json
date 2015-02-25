@@ -1,0 +1,9 @@
+[
+  {
+    "type": "html",
+    "html": true,
+    "class": "module half",
+    "title": "Dashboard",
+    "content": "@app/modules/content/editround.html"
+  }
+]

@@ -31,13 +31,73 @@
   "homepage": "https://github.com/team2059/2015-Scouting",
   "dependencies": {
     "prompt": "^0.2.14",
-    "request": "^2.51.0",
     "tba": "0.0.1"
   },
-  "readme": "# 2015-Scouting\r\nScouting system developed for the 2015 FIRST Robotics Competition game, RECYCLE RUSH.\r\n",
-  "readmeFilename": "README.md",
-  "_id": "2015-Scouting@0.0.0",
-  "_shasum": "d02429b8f34f4d801bdfff66a1fd619c66bce788",
-  "_from": "apps\\2015-Scouting",
-  "_resolved": "file:apps\\2015-Scouting"
+  "THUMS-Permissions": [
+    {
+      "type": "data",
+      "path": "lib/data.js"
+    }, {
+      "type": "sockets",
+      "path": "lib/sockets.js"
+    }, {
+      "type": "sockets"
+    },"modules"],
+  "THUMS-Reserve": ["","monitor","results"],
+  "THUMS-Posts": [
+    {
+      "slug": "",
+      "title": "RECYCLE RUSH Scouting",
+      "modules": "@app/modules/input.json"
+    },{
+      "slug": "monitor",
+      "title": "Scouting Watch",
+      "modules": "@app/modules/monitor.json"
+    }
+  ],
+  "THUMS-Tables": [
+    {
+      "name": "matches",
+      "columns": [
+        "event CHAR(6)",
+        "round SMALLINT(3)",
+        "r1 SMALLINT(4)",
+        "r2 SMALLINT(4)",
+        "r3 SMALLINT(4)",
+        "b1 SMALLINT(4)",
+        "b2 SMALLINT(4)",
+        "b3 SMALLINT(4)"
+      ]
+    },
+    {
+      "name": "match_scouting",
+      "columns": [
+        "event CHAR(6) DEFAULT NULL",
+        "round SMALLINT(3) DEFAULT NULL",
+        "team SMALLINT(4) DEFAULT NULL",
+        "scouter CHAR",
+        "comment TEXT",
+        "b1 SMALLINT(2) DEFAULT 0",
+        "b2 SMALLINT(2) DEFAULT 0",
+        "b3 SMALLINT(2) DEFAULT 0",
+        "b4 SMALLINT(2) DEFAULT 0",
+        "b5 SMALLINT(2) DEFAULT 0",
+        "b6 SMALLINT(2) DEFAULT 0",
+        "t1 SMALLINT(2) DEFAULT 0",
+        "t2 SMALLINT(2) DEFAULT 0",
+        "t3 SMALLINT(2) DEFAULT 0",
+        "t4 SMALLINT(2) DEFAULT 0",
+        "t5 SMALLINT(2) DEFAULT 0",
+        "t6 SMALLINT(2) DEFAULT 0",
+        "a1 SMALLINT(2) DEFAULT 0",
+        "a2 SMALLINT(2) DEFAULT 0",
+        "a3 SMALLINT(2) DEFAULT 0",
+        "a4 SMALLINT(2) DEFAULT 0",
+        "c1 SMALLINT(2) DEFAULT 0",
+        "c2 SMALLINT(2) DEFAULT 0",
+        "c3 SMALLINT(2) DEFAULT 0",
+        "c4 SMALLINT(2) DEFAULT 0"
+      ]
+    }
+  ]
 }

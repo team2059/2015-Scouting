@@ -1,0 +1,11 @@
+[
+  {
+    "type": "html",
+    "html": true,
+    "class": "module half",
+    "title": "Dashboard",
+    "content": {
+      "body": "<div class=\"panel\">Test.</div>"
+    }
+  }
+]

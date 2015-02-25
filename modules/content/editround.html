@@ -1,0 +1,55 @@
+<p>Match number.</p>
+<div class="panel">
+    <input type="number" id="match-number" />
+</div>
+<div class="panel">
+    <button class="button" id="previous-match">Previous</button>
+    <button class="button" id="next-match">Next</button>
+</div>
+<script>
+    var socket;
+
+    function nextMatch() {
+        socket.emit('next match', document.getElementById('match-number').value);
+    }
+
+    function update_match_number(data) {
+        if (data > 0) {
+            document.getElementById('match-number').value = data;
+        }
+    }
+    document.getElementById('next-match').addEventListener('click', function(){
+        update_match_number(parseInt(document.getElementById('match-number').value, 10) + 1);
+        nextMatch();
+    });
+    document.getElementById('previous-match').addEventListener('click', function(){
+        update_match_number(parseInt(document.getElementById('match-number').value, 10) - 1);
+        nextMatch();
+    });
+    document.getElementById('match-number').addEventListener('input', function() {
+        nextMatch();
+    });
+
+    (function connect_sockets() {
+        'use strict';
+        function connect() {
+
+            socket = io.connect(location.origin + '/scout');
+
+            document.addEventListener('input', function (event) {
+
+            });
+
+            socket.on('connect', function () {
+                console.log('Connected!');
+            });
+            socket.on('new match', update_match_number);
+            socket.emit('get match');
+        }
+
+        var socket_script = document.createElement('script');
+        socket_script.src = '/socket.io/socket.io.js';
+        document.body.appendChild(socket_script);
+        socket_script.onload = connect;
+    })();
+</script>

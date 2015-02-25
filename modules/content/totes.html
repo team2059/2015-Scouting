@@ -1,0 +1,66 @@
+<div class="left half">
+    <div class="tote bin green noscroll droppable" draggable="true">Bin</div>
+    <div class="tote gray noscroll droppable" draggable="true">Stack</div>
+    <div class="tote gray noscroll droppable" draggable="true">Tele</div>
+    <div class="tote yellow noscroll droppable" draggable="true">Auto</div>
+    <div class="tote yellow noscroll droppable" draggable="true">Coop</div>
+</div>
+<div class="right half">
+    <div class="stack noscroll droppable" draggable="true" id="stack-6">6</div>
+    <div class="stack noscroll droppable" draggable="true" id="stack-5">5</div>
+    <div class="stack noscroll droppable" draggable="true" id="stack-4">4</div>
+    <div class="stack noscroll droppable" draggable="true" id="stack-3">3</div>
+    <div class="stack noscroll droppable" draggable="true" id="stack-2">2</div>
+    <div class="stack noscroll droppable" draggable="true" id="stack-1">1</div>
+</div>
+
+<style>
+    [draggable] {
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-user-drag: element;
+        cursor: move;
+    }
+    [draggable=true] {
+        -khtml-user-drag: element;
+    }
+    .tote {
+        color: #FFF;
+        font-size: 2em;
+        text-align: center;
+        margin: 0 10% 0.2em 10%;
+        padding: 0.2em 0;
+        width: 80%;
+    }
+    .bin {
+        padding: 1.1em 0;
+    }
+    .yellow {
+        color: #9EBFE4;
+        background-color: #fff987;
+    }
+    .gray {
+        background-color: #9EBFE4;
+    }
+    .green {
+        background-color: #4FCBA6;
+    }
+    .stack {
+        width: 80%;
+        color: #FFF;
+        font-size: 2em;
+        text-align: center;
+        background-color: #FFC163;
+        margin: 0 10% 0.2em 10%;
+        padding: 0.2em;
+        -webkit-transition: background-color 100ms;
+        -moz-transition: background-color 100ms;
+        -ms-transition: background-color 100ms;
+        -o-transition: background-color 100ms;
+        transition: background-color 100ms;
+    }
+    .name-required {
+        visibility: hidden;
+    }
+</style>
