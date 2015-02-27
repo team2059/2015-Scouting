@@ -6,7 +6,9 @@ var app,
 app = {};
 
 app.name = "2015-Scouting :)";
-app.reserve = ["", "scout"];
+
+// TODO: Replace this with the package declaration.
+app.reserve = ["", "monitor","results"];
 
 app.start = function (THUMS) {
     var self = this,
@@ -19,8 +21,23 @@ app.start = function (THUMS) {
     sock.on("connection", scoutingSocket.start);
 };
 
+
+// TODO: Get this working.
 app.module = function (req, res, next) {
-    next();
+    if (req.originalUrl.split("/")[1] === "results") {
+        app.data.getAllAverages(function(result) {
+            req.post_info.modules.push({
+                "type": "table",
+                "table": true,
+                "class": "module",
+                "title": "Results",
+                "content": result
+            });
+            next();
+        });
+    } else {
+        return next();
+    }
 };
 
 module.exports = app;
